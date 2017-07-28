@@ -72,6 +72,10 @@ public final class Siren: NSObject {
     /// By default, it's set to the name of the app that's stored in your plist.
     public lazy var appName: String = Bundle.main.bestMatchingAppName()
 
+    /// The bundle identifier of your app.
+    /// By default, it's set to the bundle identifier of the app that's stored in your plist.
+    public lazy var appBundleIdentifier: String = Bundle.main.bundleIdentifier
+
     /// The region or country of an App Store in which your app is available.
     /// By default, all version checks are performed against the US App Store.
     /// If your app is not available in the US App Store, set it to the identifier of at least one App Store within which it is available.
@@ -223,7 +227,7 @@ private extension Siren {
 
         guard let currentVersionReleaseDate = info[JSONKeys.currentVersionReleaseDate] as? String,
             let daysSinceRelease = Date.days(since: currentVersionReleaseDate) else {
-            return
+                return
         }
 
         guard daysSinceRelease >= showAlertAfterCurrentVersionHasBeenReleasedForDays else {
@@ -241,7 +245,7 @@ private extension Siren {
         components.host = "itunes.apple.com"
         components.path = "/lookup"
 
-        var items: [URLQueryItem] = [URLQueryItem(name: "bundleId", value: Bundle.bundleID())]
+        var items: [URLQueryItem] = [URLQueryItem(name: "bundleId", value: appBundleIdentifier)]
 
         if let countryCode = countryCode {
             let item = URLQueryItem(name: "country", value: countryCode)
@@ -442,8 +446,8 @@ private extension Siren {
 
         guard systemVersion.compare(requiredOSVersion, options: .numeric) == .orderedDescending ||
             systemVersion.compare(requiredOSVersion, options: .numeric) == .orderedSame else {
-            postError(.appStoreOSVersionUnsupported, underlyingError: nil)
-            return false
+                postError(.appStoreOSVersionUnsupported, underlyingError: nil)
+                return false
         }
 
         return true
@@ -459,7 +463,7 @@ private extension Siren {
     func launchAppStore() {
         guard let appID = appID,
             let iTunesURL = URL(string: "https://itunes.apple.com/app/id\(appID)") else {
-            return
+                return
         }
 
         DispatchQueue.main.async {
@@ -488,7 +492,7 @@ public extension Siren {
         /// Presents user with option to update the app now, at next launch, or to skip this version all together (3 button alert).
         case skip
 
-        /// Doesn't show the alert, but instead returns a localized message 
+        /// Doesn't show the alert, but instead returns a localized message
         /// for use in a custom UI within the sirenDidDetectNewVersionWithoutAlert() delegate method.
         case none
     }
@@ -628,17 +632,17 @@ private extension Siren {
         case .appStoreReleaseDateFailure:
             description = "Error retrieving trackId as the JSON does not contain a 'currentVersionReleaseDate' key."
         }
-
+        
         var userInfo: [String: Any] = [NSLocalizedDescriptionKey: description]
-
+        
         if let underlyingError = underlyingError {
             userInfo[NSUnderlyingErrorKey] = underlyingError
         }
-
+        
         let error = NSError(domain: SirenErrorDomain, code: code.rawValue, userInfo: userInfo)
-
+        
         delegate?.sirenDidFailVersionCheck(error: error)
-
+        
         printMessage(message: error.localizedDescription)
     }
 }
