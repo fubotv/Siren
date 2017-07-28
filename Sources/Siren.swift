@@ -74,7 +74,7 @@ public final class Siren: NSObject {
 
     /// The bundle identifier of your app.
     /// By default, it's set to the bundle identifier of the app that's stored in your plist.
-    public lazy var appBundleIdentifier: String = Bundle.main.bundleIdentifier
+    public lazy var appBundleIdentifier = Bundle.main.bundleIdentifier ?? ""
 
     /// The region or country of an App Store in which your app is available.
     /// By default, all version checks are performed against the US App Store.
